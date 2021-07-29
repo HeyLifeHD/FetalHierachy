@@ -1,6 +1,5 @@
-source activate MethylDackel
-
 ###run Mbias and methylation calling
+conda activate MethylDackel
 
 #specify genome reference
 genome='/icgc/dkfzlsdf/analysis/C010/genomes/Mmusculus/GRCm38/seq/GRCm38mm10_PhiX_Lambda.fa'
@@ -8,7 +7,7 @@ genome='/icgc/dkfzlsdf/analysis/C010/genomes/Mmusculus/GRCm38/seq/GRCm38mm10_Phi
 outdir='/omics/groups/OE0219/internal/FetalHierachy'
 input='/icgc/dkfzlsdf/project/OE0219/mouse_hematopoiesis_PBAT/sequencing/whole_genome_bisulfite_tagmentation_sequencing/view-by-pid/*fetal*/*/paired/merged-alignment/.merging_0/*_merged.mdup.bam'
 
-###Check for mbias
+##Check for mbias
 mkdir -p ${outdir}/WGBS/QC/methylDackel/mbias
 for file in $input; do
     fname=`basename $file`
@@ -17,7 +16,7 @@ for file in $input; do
     echo $fname
 done 
 
-#Extract methylation values and adjust for mbias
+##Extract methylation values and adjust for mbias
 mkdir ${outdir}/WGBS/QC/methylDackel/methylationCalls/
 for file in $input; do
     fname=`basename $file`
@@ -29,7 +28,8 @@ for file in $input; do
     echo $dirname
     echo $fname
 done 
-#add chr to seqnames
+
+##add chr to seqnames
 for file in ${outdir}/WGBS/QC/methylDackel//methylationCalls/*/*.bedGraph; do
 awk '{print "chr" $0}' $file > $file.chr.bedgraph
 echo $file 
