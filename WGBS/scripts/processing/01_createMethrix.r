@@ -57,7 +57,7 @@ Genotype <-sapply(strsplit(SampleID_Lib, "_", fixed=TRUE), "[",4)
 Age <-sapply(strsplit(SampleID_Lib, "_", fixed=TRUE), "[",6)
 Replicate <-sapply(strsplit(SampleID_Lib, "_", fixed=TRUE), "[",7)
 Replicate <- gsub("rep-", "",Replicate)
-sample_anno <- data.frame(SampleID=SampleID_Lib, group=paste0(Tissue, Celltype, Origin, Genotype, Age, collapse="_") ,Tissue=Tissue,
+sample_anno <- data.frame(SampleID=SampleID_Lib, group=paste0(Tissue, "_",Celltype,"_", Origin,"_", Genotype, "_",Age) ,Tissue=Tissue,
     Celltype=Celltype, Origin=Origin, Genotype=Genotype, Age=Age, Replicate=Replicate)
 rownames(sample_anno)<- sample_anno$SampleID
 saveRDS(sample_anno, file.path(output.dir, "sample_anno.rds"))
@@ -117,7 +117,7 @@ meth_fil <- methrix::remove_uncovered(m = meth_fil)
 saveRDS(meth_fil, file.path(output.dir , "methrix_filter.rds"))
 #QC report
 dir.create(file.path(output.dir, "methrix", "QC_report_Filter"))
-methrix::methrix_report(meth = meth_fil, output_dir = file.path(output.dir, "methrix", "QC_report_Filter"),recal_stats=TRUE)
+methrix::methrix_report(meth = meth_fil, output_dir = file.path(output.dir, "methrix", "QC_report_Filter"),recal_stats=TxRUE)
 
 #export as bsseq
 bsseq_all <-methrix::methrix2bsseq(meth)
