@@ -29,9 +29,8 @@ bsseq_all <- readRDS(file.path(input.dir ,"bsseq", "bsseq_all.rds"))
 
 #define groups for dmr calling
 pheno <- pData(bsseq_all)
-groups <- as.character(pheno$group)
-groups_sub <- unique(groups[!groups %in% c("bonemarrow_hsc_pr-fetal_wt_p5", "fetalLiver_hsc_pr-fetal_wt_e12-5")])
-contrasts <-as.data.frame(combn(as.character(groups_sub), 2))
+groups <- unique(as.character(pheno$group))
+contrasts <-as.data.frame(combn(as.character(groups), 2))
 contrasts <- sapply(contrasts, as.character)
 colnames(contrasts)<- paste0(contrasts[1,],"_vs_", contrasts[2,])
 
@@ -39,8 +38,15 @@ colnames(contrasts)<- paste0(contrasts[1,],"_vs_", contrasts[2,])
 dml_test <- list()
 mParam = MulticoreParam(workers=4, progressbar=TRUE)
 
+#recover files
+files = dir(path =  file.path(analysis.dir ,"dml_fits") , recursive=TRUE,pattern = "_dml_fit.rds", full.names = TRUE)
+dml_test <- lapply(files, readRDS)
+names(dml_test) <- colnames(contrasts[,1:length(dml_test)])
+
 dir.create(file.path(analysis.dir ,"dml_fits"))
-for(i in colnames(contrasts)){
+
+for(i in colnames(contrasts)[7:ncol(contrasts)]){
+#for(i in colnames(contrasts)){
     gr1 <- rownames(pheno[pheno$group==contrasts[1,i],])
     gr2 <- rownames(pheno[pheno$group==contrasts[2,i],])
 
@@ -82,6 +88,7 @@ mcols(dmrs_gr[[i]])<- dmrs[[i]][,4:10]
 }
 saveRDS(dmrs_gr, file.path(analysis.dir, "dmrs_gr.rds"))
 dmrs_gr <- readRDS(file.path(analysis.dir, "dmrs_gr.rds"))
+
 #subset dmrs based on coverage
 cov_dmrs <- list()
 for(comp in names(dmrs_gr)){
@@ -90,21 +97,21 @@ for(comp in names(dmrs_gr)){
 }
 
 #find out which dmrs have a coverage of at least 3 in at least two of the groups which are being compared
-# keepLoci <- list()
-# for(i in names(cov_dmrs)){
-#     gr1 <- rownames(pheno[pheno$group==contrasts[1,i],])
-#     gr2 <- rownames(pheno[pheno$group==contrasts[2,i],])
+keepLoci <- list()
+for(i in names(cov_dmrs)){
+    gr1 <- rownames(pheno[pheno$group==contrasts[1,i],])
+    gr2 <- rownames(pheno[pheno$group==contrasts[2,i],])
 
-#     keepLoci[[i]] <- which(rowSums(cov_dmrs[[i]][, gr1] >= 2) >= round(length( gr1)/2) &
-#                      rowSums(cov_dmrs[[i]][, gr2] >= 2) >= round(length( gr2)/2))
-# }
-# lapply(keepLoci, function(x)length(x))
-# temp <- as.vector(c(as.numeric(lapply(keepLoci, function(x)length(x)))))/as.vector(as.numeric(lapply(dmrs_gr, function(x)length(x))))
-# names(temp)<-names(cov_drms)
-# temp
-# temp <- as.vector(as.numeric(lapply(dmrs_gr, function(x)length(x))))
-# names(temp)<-names(cov_drms)
-# temp
+    keepLoci[[i]] <- which(rowSums(cov_dmrs[[i]][, gr1] >= 2) >= round(length( gr1)/2) &
+                     rowSums(cov_dmrs[[i]][, gr2] >= 2) >= round(length( gr2)/2))
+}
+lapply(keepLoci, function(x)length(x))
+temp <- as.vector(c(as.numeric(lapply(keepLoci, function(x)length(x)))))/as.vector(as.numeric(lapply(dmrs_gr, function(x)length(x))))
+names(temp)<-names(cov_dmrs)
+temp
+temp <- as.vector(as.numeric(lapply(dmrs_gr, function(x)length(x))))
+names(temp)<-names(cov_dmrs)
+temp
 
 
 # #subset dmrs
@@ -192,8 +199,7 @@ export.bedGraph(temp,file.path(analysis.dir, "tracks", paste0("sig_dmrs_",i, ".b
 }
 
 #reduce dmrs
-dmrs_gr_red <- GRangesList(dmrs_gr_sub[[1]], dmrs_gr_sub[[2]], dmrs_gr_sub[[3]], dmrs_gr_sub[[4]], dmrs_gr_sub[[5]],
-                            dmrs_gr_sub[[6]])
+dmrs_gr_red <- GRangesList(dmrs_gr_sub)
 #dmrs_gr_red <- GRangesList(dmrs_gr_sub[[1]])
 dmrs_gr_red <- unlist(dmrs_gr_red)
 dmrs_gr_red <- reduce(dmrs_gr_red)

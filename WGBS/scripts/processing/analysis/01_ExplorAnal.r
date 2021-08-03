@@ -12,7 +12,8 @@ library(randomcoloR)
 library(dendextend)
 library("EnsDb.Mmusculus.v79")
 library(RnBeads.mm10)
-
+library(RnBeads)
+library(org.Mm.eg.db)
 #directories
 odcf.dir <-"/omics/groups/OE0219/internal/FetalHierachy/WGBS/methylDackel/methylationCalls/"
 input.dir <-"/omics/groups/OE0219/internal/FetalHierachy/WGBS/210729_analysis/"
@@ -24,11 +25,11 @@ bsseq_all <- readRDS(file.path(input.dir ,"bsseq", "bsseq_all.rds"))
 
 #colors
 col = list(
-    group= c("bonemarrow_hsc_pr-fetal_wt_p2"="#0058b4", "bonemarrow_hsc_pr-fetal_wt_p5"="#2188c9", 
-    "fetalLiver_hsc_pr-fetal_wt_e12-5"="#fbbb25", "fetalLiver_hsc_pr-fetal_wt_e14-5"="#fca349", 
-    "fetalLiver_hsc_pr-fetal_wt_p2"="#ff6b36", "fetalLiver_hsc_pr-fetal_wt_p5"="#e34e2e"),
+    group= c("bonemarrow_p2"="#0058b4", "bonemarrow_p5"="#2188c9", 
+    "fetalLiver_e12_5"="#fbbb25", "fetalLiver_e14_5"= "#a41220","fetalLiver_5"="#fca349", 
+    "fetalLiver_p2"="#ff6b36", "fetalLiver_p5"="#e34e2e"),
     Tissue=c(bonemarrow="#ababab", fetalLiver="#99a637"),
-    Age=c("p2"="#252525", "p5"="#737373", "e12-5"="#9babcf", "e14-5"="#99a637"))
+    Age=c("p2"="#252525", "p5"="#737373", "e12_5"="#9babcf", "e14_5"="#99a637"))
 
 #Plot average Methylation 
 ## extract the methylation values
@@ -229,146 +230,13 @@ print(i)
 }
 
 
+#for tiled genome
+seqlengths <- seqlengths(org.Mm.eg.db)
+seqlengths=org.Mm.egCHRLENGTHS[1:24]
+names(seqlengths)=paste("chr", names(seqlengths), sep="")
+tilewidth=500
+tiles=tileGenome(seqlengths, tilewidth=tilewidth, cut.last.tile.in.chrom=FALSE)
 
-#Donor and Genotype
-pdf(file.path(analysis.dir, "PC12_20000mvCpGs_subsetted_DonorGenotype.pdf"),height = 5, width = 5)
-ggscatter(x, x="PC1", y="PC2",
-          color = "Donor", shape = "Genotype",#size="Protocol",
-          ellipse = F , mean.point = FALSE,palette= c(cordblood = "#737373", adult_bonemarrow ="#ababab", 
-                    D117 = "#0058b4", D129 = "#2188c9", 
-                    D217 = "#fbbb25", I217 = "#fca349", 
-                    D213 = "#ff6b36", D124 = "#e34e2e", D123 = "#c33126", D360 = "#a41220"),
-          star.plot = F, xlab=(paste0("PC1: ", round(summary(ir.pca)$importance[2,1]*100,2), 
-          "% variance")), ylab=(paste0("PC2: ", round(summary(ir.pca)$importance[2,2]*100,2), "% variance"))) +
-           theme(legend.position="right",legend.title = element_text(, size=10, 
-                                      face="bold"))
-dev.off()
-pdf(file.path(analysis.dir, "PC23_20000mvCpGs_subsetted_DonorGenotyp.pdf"),height = 5, width = 5)
-ggscatter(x, x="PC2", y="PC3",
-          color = "Donor", shape = "Genotype",#size="Protocol",
-          ellipse = F , mean.point = FALSE,palette= c(cordblood = "#737373", adult_bonemarrow ="#ababab", 
-                    D117 = "#0058b4", D129 = "#2188c9", 
-                    D217 = "#fbbb25", I217 = "#fca349", 
-                    D213 = "#ff6b36", D124 = "#e34e2e", D123 = "#c33126", D360 = "#a41220"),
-          star.plot = F, xlab=(paste0("PC2: ", round(summary(ir.pca)$importance[2,2]*100,2), 
-          "% variance")), ylab=(paste0("PC3: ", round(summary(ir.pca)$importance[2,3]*100,2), "% variance"))) +
-           theme(legend.position="right",legend.title = element_text(, size=10, 
-                                      face="bold"))
-dev.off()
-pdf(file.path(analysis.dir, "PC34_20000mvCpGs_subsetted_DonorGenotyp.pdf"),height = 5, width = 5)
-ggscatter(x, x="PC3", y="PC4",
-          color = "Donor", shape = "Epigenotype",#size="Protocol",
-          ellipse = F , mean.point = FALSE,palette= c(cordblood = "#737373", adult_bonemarrow ="#ababab", 
-                    D117 = "#0058b4", D129 = "#2188c9", 
-                    D217 = "#fbbb25", I217 = "#fca349", 
-                    D213 = "#ff6b36", D124 = "#e34e2e", D123 = "#c33126", D360 = "#a41220"),
-          star.plot = F, xlab=(paste0("PC3: ", round(summary(ir.pca)$importance[2,3]*100,2), 
-          "% variance")), ylab=(paste0("PC4: ", round(summary(ir.pca)$importance[2,4]*100,2), "% variance"))) +
-           theme(legend.position="right",legend.title = element_text(, size=10, 
-                                      face="bold"))
-dev.off()
-#Donor and Epigenotype
-pdf(file.path(analysis.dir, "PC12_20000mvCpGs_subsetted_DonorEpigenotype.pdf"),height = 5, width = 5)
-ggscatter(x, x="PC1", y="PC2",
-          color = "Donor", shape = "Epigenotype",#size="Protocol",
-          ellipse = F , mean.point = FALSE,palette= c(cordblood = "#737373", adult_bonemarrow ="#ababab", 
-                    D117 = "#0058b4", D129 = "#2188c9", 
-                    D217 = "#fbbb25", I217 = "#fca349", 
-                    D213 = "#ff6b36", D124 = "#e34e2e", D123 = "#c33126", D360 = "#a41220"),
-          star.plot = F, xlab=(paste0("PC1: ", round(summary(ir.pca)$importance[2,1]*100,2), 
-          "% variance")), ylab=(paste0("PC2: ", round(summary(ir.pca)$importance[2,2]*100,2), "% variance"))) +
-           theme(legend.position="right",legend.title = element_text(, size=10, 
-                                      face="bold"))
-dev.off()
-pdf(file.path(analysis.dir, "PC23_20000mvCpGs_subsetted_DonorEpigenotype.pdf"),height = 5, width = 5)
-ggscatter(x, x="PC2", y="PC3",
-          color = "Donor", shape = "Epigenotype",#size="Protocol",
-          ellipse = F , mean.point = FALSE,palette= c(cordblood = "#737373", adult_bonemarrow ="#ababab", 
-                    D117 = "#0058b4", D129 = "#2188c9", 
-                    D217 = "#fbbb25", I217 = "#fca349", 
-                    D213 = "#ff6b36", D124 = "#e34e2e", D123 = "#c33126", D360 = "#a41220"),
-          star.plot = F, xlab=(paste0("PC2: ", round(summary(ir.pca)$importance[2,2]*100,2), 
-          "% variance")), ylab=(paste0("PC3: ", round(summary(ir.pca)$importance[2,3]*100,2), "% variance"))) +
-           theme(legend.position="right",legend.title = element_text(, size=10, 
-                                      face="bold"))
-dev.off()
-pdf(file.path(analysis.dir, "PC34_20000mvCpGs_subsetted_DonorEpigenotype.pdf"),height = 5, width = 5)
-ggscatter(x, x="PC3", y="PC4",
-          color = "Donor", shape = "Epigenotype",#size="Protocol",
-          ellipse = F , mean.point = FALSE,palette= c(cordblood = "#737373", adult_bonemarrow ="#ababab", 
-                    D117 = "#0058b4", D129 = "#2188c9", 
-                    D217 = "#fbbb25", I217 = "#fca349", 
-                    D213 = "#ff6b36", D124 = "#e34e2e", D123 = "#c33126", D360 = "#a41220"),
-          star.plot = F, xlab=(paste0("PC3: ", round(summary(ir.pca)$importance[2,3]*100,2), 
-          "% variance")), ylab=(paste0("PC4: ", round(summary(ir.pca)$importance[2,4]*100,2), "% variance"))) +
-           theme(legend.position="right",legend.title = element_text(, size=10, 
-                                      face="bold"))
-dev.off()
-#Celltype and tissue
-pdf(file.path(analysis.dir, "PC12_20000Promoter_subsetted_CelltypeTissue.pdf"),height = 5, width = 5)
-ggscatter(x, x="PC1", y="PC2",
-          color = "Celltype", shape = "Tissue",label="Patient",repel=TRUE,
-          ellipse = F , mean.point = FALSE,palette= c(HSC ="#252525", MPP = "#737373", LMPP = "#9babcf", CD45RACD90 = "#99a637", MEP = "#e62628", CMP = "#f6be13", GMP = "#f57e12"),
-          star.plot = F, xlab=(paste0("PC1: ", round(summary(ir.pca)$importance[2,1]*100,2), 
-          "% variance")), ylab=(paste0("PC2: ", round(summary(ir.pca)$importance[2,2]*100,2), "% variance"))) +
-           theme(legend.position="right",legend.title = element_text(, size=10, 
-                                      face="bold"))
-dev.off()
-pdf(file.path(analysis.dir, "PC23_20000Promoter_subsetted_CelltypeTissue.pdf"),height = 5, width = 5)
-ggscatter(x, x="PC2", y="PC3",
-          color = "Celltype", shape = "Tissue",label="Patient",repel=TRUE,
-          ellipse = F , mean.point = FALSE,palette= c(HSC ="#252525", MPP = "#737373", LMPP = "#9babcf", CD45RACD90 = "#99a637", MEP = "#e62628", CMP = "#f6be13", GMP = "#f57e12"),
-          star.plot = F, xlab=(paste0("PC2: ", round(summary(ir.pca)$importance[2,2]*100,2), 
-          "% variance")), ylab=(paste0("PC3: ", round(summary(ir.pca)$importance[2,3]*100,2), "% variance"))) +
-           theme(legend.position="right",legend.title = element_text(, size=10, 
-                                      face="bold"))
-dev.off()
-pdf(file.path(analysis.dir, "PC34_20000Promoter_subsetted_CelltypeTissue.pdf"),height = 5, width = 5)
-ggscatter(x, x="PC3", y="PC4",
-          color = "Celltype", shape = "Tissue",label="Patient",repel=TRUE,
-          ellipse = F , mean.point = FALSE,palette= c(HSC ="#252525", MPP = "#737373", LMPP = "#9babcf", CD45RACD90 = "#99a637", MEP = "#e62628", CMP = "#f6be13", GMP = "#f57e12"),
-          star.plot = F, xlab=(paste0("PC3: ", round(summary(ir.pca)$importance[2,3]*100,2), 
-          "% variance")), ylab=(paste0("PC4: ", round(summary(ir.pca)$importance[2,4]*100,2), "% variance"))) +
-           theme(legend.position="right",legend.title = element_text(, size=10, 
-                                      face="bold"))
-dev.off()
-
-pdf(file.path(analysis.dir, "PC12_20000mvCpG_subsetted_DonorGenotype.pdf"),height = 5, width = 5)
-ggscatter(x, x="PC1", y="PC2",
-          color = "Donor", shape = "Genotype",#size="Protocol",
-          ellipse = F , mean.point = FALSE,palette= c(D117 = "#0058b4", D129 = "#2188c9", 
-                    D217 = "#fbbb25", I217 = "#f99f58", 
-                    D213 = "#ee5529", D360 = "#dc263f", D124 = "#de5332", D123 = "#c33126", 
-                    adult ="#c2c2c2", cordblood = "#a9a9a9"),
-          star.plot = F, xlab=(paste0("PC1: ", round(summary(ir.pca)$importance[2,1]*100,2), 
-          "% variance")), ylab=(paste0("PC2: ", round(summary(ir.pca)$importance[2,2]*100,2), "% variance"))) +
-           theme(legend.position="right",legend.title = element_text(, size=10, 
-                                      face="bold"))
-dev.off()
-pdf(file.path(analysis.dir, "PC23_20000mvCpG_subsetted_DonorGenotyp.pdf"),height = 5, width = 5)
-ggscatter(x, x="PC2", y="PC3",
-          color = "Donor", shape = "Genotype",#size="Protocol",
-          ellipse = F , mean.point = FALSE,palette= c(D117 = "#0058b4", D129 = "#2188c9", 
-                    D217 = "#fbbb25", I217 = "#f99f58", 
-                    D213 = "#ee5529", D360 = "#dc263f", D124 = "#de5332", D123 = "#c33126", 
-                    adult ="#c2c2c2", cordblood = "#a9a9a9"),
-          star.plot = F, xlab=(paste0("PC2: ", round(summary(ir.pca)$importance[2,2]*100,2), 
-          "% variance")), ylab=(paste0("PC3: ", round(summary(ir.pca)$importance[2,3]*100,2), "% variance"))) +
-           theme(legend.position="right",legend.title = element_text(, size=10, 
-                                      face="bold"))
-dev.off()
-pdf(file.path(analysis.dir, "PC34_20000mvCpG_subsetted_DonorGenotyp.pdf"),height = 5, width = 5)
-ggscatter(x, x="PC3", y="PC4",
-          color = "Donor", shape = "Epigenotype",#size="Protocol",
-          ellipse = F , mean.point = FALSE,palette= c(D117 = "#0058b4", D129 = "#2188c9", 
-                    D217 = "#fbbb25", I217 = "#f99f58", 
-                    D213 = "#ee5529", D360 = "#dc263f", D124 = "#de5332", D123 = "#c33126", 
-                    adult ="#c2c2c2", cordblood = "#a9a9a9"),
-          star.plot = F, xlab=(paste0("PC3: ", round(summary(ir.pca)$importance[2,3]*100,2), 
-          "% variance")), ylab=(paste0("PC4: ", round(summary(ir.pca)$importance[2,4]*100,2), "% variance"))) +
-           theme(legend.position="right",legend.title = element_text(, size=10, 
-                                      face="bold"))
-dev.off()
 
 #Sample Clustering
 topVarCpGs<- head(order(rowVars(as.matrix(meth_per_cpg)), decreasing=TRUE),200000)

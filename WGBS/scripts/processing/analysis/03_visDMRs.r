@@ -29,11 +29,11 @@ dmrs_red<- readRDS(file.path(analysis.dir, "sig_dmrs_anno_reduced.rds"))
 
 #colors
 col = list(
-    group= c("bonemarrow_hsc_pr-fetal_wt_p2"="#0058b4", "bonemarrow_hsc_pr-fetal_wt_p5"="#2188c9", 
-    "fetalLiver_hsc_pr-fetal_wt_e12-5"="#fbbb25", "fetalLiver_hsc_pr-fetal_wt_e14-5"="#fca349", 
-    "fetalLiver_hsc_pr-fetal_wt_p2"="#ff6b36", "fetalLiver_hsc_pr-fetal_wt_p5"="#e34e2e"),
+    group= c("bonemarrow_p2"="#0058b4", "bonemarrow_p5"="#2188c9", 
+    "fetalLiver_e12_5"="#fbbb25", "fetalLiver_e14_5"= "#a41220","fetalLiver_5"="#fca349", 
+    "fetalLiver_p2"="#ff6b36", "fetalLiver_p5"="#e34e2e"),
     Tissue=c(bonemarrow="#ababab", fetalLiver="#99a637"),
-    Age=c("p2"="#252525", "p5"="#737373", "e12-5"="#9babcf", "e14-5"="#99a637"))
+    Age=c("p2"="#252525", "p5"="#737373", "e12_5"="#9babcf", "e14_5"="#99a637"))
 
 #add reduced data for common analysis
 dmrs_final <- lapply(dmrs_final, function(x){
@@ -186,7 +186,7 @@ for(i in names(dmrs_final)){
 
 #location of dmrs
 library(circlize)
-for(i in names(dmrs_final))[! names(dmrs_final) %in% c("all")]){
+for(i in names(dmrs_final)[!names(dmrs_final) %in% c("all")]){
     dmrs_final_df <- as.data.frame(dmrs_final[[i]])
     pdf(file.path(analysis.dir,i,"visualization", paste0("DMRlocation_CirclePlot",".pdf")))
     circos.initializeWithIdeogram(species = "mm10", chromosome.index = paste0("chr", c(1:19, "X", "Y")))
