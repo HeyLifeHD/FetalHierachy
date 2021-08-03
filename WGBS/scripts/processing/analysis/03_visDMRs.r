@@ -186,7 +186,7 @@ for(i in names(dmrs_final)){
 
 #location of dmrs
 library(circlize)
-for(i in names(dmrs_final)[!names(dmrs_final) %in% c("all")]){
+for(i in names(dmrs_final))[!names(dmrs_final) %in% c("all")]){
     dmrs_final_df <- as.data.frame(dmrs_final[[i]])
     pdf(file.path(analysis.dir,i,"visualization", paste0("DMRlocation_CirclePlot",".pdf")))
     circos.initializeWithIdeogram(species = "mm10", chromosome.index = paste0("chr", c(1:19, "X", "Y")))
