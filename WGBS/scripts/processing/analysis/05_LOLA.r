@@ -302,7 +302,7 @@ combined_data$filename<-sapply(strsplit(combined_data$filename,".bed", fixed=TRU
 #adjust filename 
 combined_data$filename <- gsub("_", " ", combined_data$filename)
 combined_data$filename <- gsub("hallmark ", "", combined_data$filename)
-combined_data$filename <- str_to_sentence(combined_data$filename)
+combined_data$filename <- stringr::str_to_sentence(combined_data$filename)
 temp <- split(combined_data, combined_data$filename)
 temp <- unlist(lapply(temp, function(x){
     x <- mean(x$pValueLog)

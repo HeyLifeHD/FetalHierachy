@@ -231,12 +231,57 @@ print(i)
 
 
 #for tiled genome
-seqlengths <- seqlengths(org.Mm.eg.db)
-seqlengths=org.Mm.egCHRLENGTHS[1:24]
+seqlengths<- org.Mm.egCHRLENGTHS[1:21]
 names(seqlengths)=paste("chr", names(seqlengths), sep="")
 tilewidth=500
 tiles=tileGenome(seqlengths, tilewidth=tilewidth, cut.last.tile.in.chrom=FALSE)
+tiles <- unlist(GRangesList(tiles))
+tileMeth <- bsseq::getMeth(bsseq_all, regions=tiles, what="perRegion", type="raw")
+tileMeth_sub <- tileMeth[complete.cases(tileMeth),]
+nrow(tileMeth_sub)/nrow(tileMeth)
+dim(tileMeth_sub)
+tileMeth_sub_var <- tileMeth_sub[rowVars(as.matrix(tileMeth_sub))!=0,]
+dim(tileMeth_sub_var)
+nrow(tileMeth_sub_var)/nrow(tileMeth)
 
+#run pca
+ir.pca <- prcomp(t(tileMeth_sub_var),
+                 center = TRUE,
+                 scale. = TRUE) 
+summary(ir.pca)
+x <- ir.pca$x
+x<- as.data.frame(cbind(x , pheno))
+
+for(i in names(col)){
+pdf(file.path(analysis.dir, paste0("PC12_500bpTiles_",i,".pdf")),height = 5, width = 5)
+print(ggscatter(x, x="PC1", y="PC2",
+          color = i, shape = "Replicate",
+          ellipse = F , mean.point = FALSE,palette= col[[i]],
+          star.plot = F, xlab=(paste0("PC1: ", round(summary(ir.pca)$importance[2,1]*100,2), 
+          "% variance")), ylab=(paste0("PC2: ", round(summary(ir.pca)$importance[2,2]*100,2), "% variance"))) +
+           theme(legend.position="right",legend.title = element_text(, size=10, 
+                                      face="bold")))
+dev.off()
+pdf(file.path(analysis.dir, paste0("PC23_500bpTiles_",i,".pdf")),height = 5, width = 5)
+print(ggscatter(x, x="PC2", y="PC3",
+          color = i, shape = "Replicate",
+          ellipse = F , mean.point = FALSE,palette= col[[i]],
+          star.plot = F, xlab=(paste0("PC2: ", round(summary(ir.pca)$importance[2,2]*100,2), 
+          "% variance")), ylab=(paste0("PC3: ", round(summary(ir.pca)$importance[2,3]*100,2), "% variance"))) +
+           theme(legend.position="right",legend.title = element_text(, size=10, 
+                                      face="bold")))
+dev.off()
+pdf(file.path(analysis.dir, paste0("PC34_500bpTiles_",i,".pdf")),height = 5, width = 5)
+print(ggscatter(x, x="PC3", y="PC4",
+          color = i, shape = "Replicate",
+          ellipse = F , mean.point = FALSE,palette= col[[i]],
+          star.plot = F, xlab=(paste0("PC2: ", round(summary(ir.pca)$importance[2,3]*100,2), 
+          "% variance")), ylab=(paste0("PC3: ", round(summary(ir.pca)$importance[2,4]*100,2), "% variance"))) +
+           theme(legend.position="right",legend.title = element_text(, size=10, 
+                                      face="bold")))
+dev.off()
+print(i)
+}
 
 #Sample Clustering
 topVarCpGs<- head(order(rowVars(as.matrix(meth_per_cpg)), decreasing=TRUE),200000)

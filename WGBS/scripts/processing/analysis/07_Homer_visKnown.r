@@ -405,15 +405,3 @@ for(i in names(DEG_results_list)){
     + rremove("ylab")+ rremove("legend")+rotate_x_text(angle = 45)+ coord_flip() )
     dev.off()
 }
-
-
-
-
-
-
-
-
-
-
-
-
