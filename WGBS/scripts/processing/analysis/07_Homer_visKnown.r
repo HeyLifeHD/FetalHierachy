@@ -166,10 +166,11 @@ for (i in names(DAR_list)){
     #sig <- DAR_list_sub_plot[[i]][DAR_list_sub_plot[[i]]$p.adjusted < 0.5, ]$MotifName
 
     DAR_list_sub_plot[[i]] <- DAR_list_sub_plot[[i]][DAR_list_sub_plot[[i]]$MotifName %in% sig, ]
-
-    pdf(file.path(analysis.dir,"homer",i, paste0("HomerBubble_homerBG_top10_qval0.05_homerBG.pdf")), height=7)
-    print(bubblePlot(DAR_list_sub_plot[[i]])+ggtitle(i))
-    dev.off()
+    if(nrow(DAR_list_sub_plot[[i]])>1){
+        pdf(file.path(analysis.dir,"homer",i, paste0("HomerBubble_homerBG_top10_qval0.05_homerBG.pdf")), height=7)
+        print(bubblePlot(DAR_list_sub_plot[[i]])+ggtitle(i))
+        dev.off()
+    }
     print(i)
 }
 
@@ -181,20 +182,20 @@ for (i in names(DAR_list)){
 knownRes <- list.files(file.path(analysis.dir), pattern="knownResults$", full.names = TRUE, recursive = TRUE, include.dirs= TRUE)
 #select non custom bG
 knownRes <- gsub("knownResults", "", knownRes)
-knownRes <- knownRes[grep("all/$",knownRes, invert=TRUE)]
+knownRes <- knownRes[grep("all",knownRes, invert=TRUE)]
 knownRes <- knownRes[grep("BG/$",knownRes, invert=FALSE)]
 #rename
 names_knownRes <- strsplit(knownRes, "/", fixed=TRUE)
 names_knownRes_sub <- sapply(names_knownRes, function(x) paste0(x[11], "_", x[12]))
 names(knownRes) <- names_knownRes_sub
-homer_list <- mclapply(knownRes, function(x)read_homer_output(x),mc.cores=5)
+homer_list <- mclapply(knownRes, function(x)read_homer_output(x),mc.cores=7)
 
 #subdevide results
 DAR_list <- list()
 for(i in unique(sapply(names_knownRes, function(x) x[11]))){
     DAR_list[[i]]<- homer_list[grep(paste0("^",i), names(homer_list))]
     temp <- strsplit(names(DAR_list[[i]]), "_", fixed=TRUE)
-    temp <- sapply(temp, function(x)x[length(x)])
+    temp <- sapply(temp, function(x)x[length(x)-1])
     names( DAR_list[[i]]) <- temp
 }
 dir.create(file.path(analysis.dir,"homer"))
@@ -203,7 +204,7 @@ dir.create(file.path(analysis.dir,"homer"))
 #plot all sig motifs
 DAR_list_sub <- list()
 DAR_list_sub_sig <- list()
-DAR_list_sub_plot<-list()
+DAR_list_sub_plot<-list()i
 for (i in names(DAR_list)){
     DAR_list_sub[[i]]<- lapply(DAR_list[[i]], function(x){
     x$known_motif_table$MotifName <- sapply(strsplit(x$known_motif_table$motif_name ,"(", fixed=TRUE),`[`, 1)
@@ -235,11 +236,13 @@ for (i in names(DAR_list)){
     DAR_list_sub_plot[[i]]<- do.call("rbind", DAR_list_sub_plot[[i]])
     sig <- DAR_list_sub_plot[[i]][DAR_list_sub_plot[[i]]$q_value_benjamini < 0.05, ]$MotifName
     DAR_list_sub_plot[[i]] <- DAR_list_sub_plot[[i]][DAR_list_sub_plot[[i]]$MotifName %in% sig, ]
-    
+    if(nrow(DAR_list_sub_plot[[i]])>1){
     pdf(file.path(analysis.dir,"homer",i, paste0("HomerBubble_allDMRBG_all_qval0.05.pdf")), height=40)
     print(bubblePlot(DAR_list_sub_plot[[i]])+ggtitle(i))
     dev.off()
+    }
     print(i)
+
 }
 
 
@@ -281,9 +284,11 @@ for (i in names(DAR_list)){
     #sig <- DAR_list_sub_plot[[i]][DAR_list_sub_plot[[i]]$p.adjusted < 0.5, ]$MotifName
 
     DAR_list_sub_plot[[i]] <- DAR_list_sub_plot[[i]][DAR_list_sub_plot[[i]]$MotifName %in% sig, ]
+    if(nrow(DAR_list_sub_plot[[i]])>1){
 
     pdf(file.path(analysis.dir,"homer",i, paste0("HomerBubble_allDMRBG_top10_qval0.05_homerBG.pdf")), height=7)
     print(bubblePlot(DAR_list_sub_plot[[i]])+ggtitle(i))
     dev.off()
+    }
     print(i)
 }
